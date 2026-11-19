@@ -1,4 +1,4 @@
-# Where does your day go?
+# Your day, against twenty years of diaries
 
 DSC 106 final project (Fall 2026), team Data brokers: Aryen Palkar, Jayden Liauw, Haoyu Lin.
 
