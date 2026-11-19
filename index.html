@@ -6,27 +6,27 @@
 <title>Data Driven Findings in Everyday Life</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=Fraunces:opsz,wght@9..144,600;9..144,700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css">
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600&family=Newsreader:opsz,wght@6..72,400;6..72,500&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css?v=2">
 </head>
 <body>
 <header class="masthead">
-  <p class="kicker">DSC 106 · Final project prototype · American Time Use Survey 2003–2024</p>
-  <h1>Where does your day go?</h1>
-  <p class="dek">Everyone gets 1,440 minutes. Twenty years of diaries from the Bureau of Labor Statistics show how Americans spend them, and how much less of that time we now spend with friends.</p>
-  <p class="muted">Team Data brokers: Aryen Palkar, Jayden Liauw, Haoyu Lin ·
+  <p class="meta">DSC 106 final project · prototype · 18 Nov 2026</p>
+  <h1>Your day, against twenty years of diaries</h1>
+  <p class="dek">Every year the Bureau of Labor Statistics asks thousands of Americans to write down one day, from 4 am to 4 am. Fill in yours, then see how the average day has changed since 2003, and how much less of it we now spend with friends.</p>
+  <p class="byline">Team Data brokers: Aryen Palkar, Jayden Liauw, Haoyu Lin ·
     <a href="https://github.com/AryenP/dsc106-final">Source code</a> ·
-    Data: <a href="https://www.bls.gov/tus/data/datafiles-0324.htm">ATUS 2003–2024 multi-year microdata files (BLS)</a></p>
-  <p class="status">Prototype, 18 Nov 2026. Charts 1 and 2 work; chart 3 is an early draft; the closing view is not built yet.</p>
+    <a href="https://www.bls.gov/tus/data/datafiles-0324.htm">ATUS 2003–2024 microdata (BLS)</a></p>
+  <p class="byline">Charts 1 and 2 work. Chart 3 is a draft and the closing view comes next. Times are shown as <span class="fig">hours:minutes</span> per day.</p>
 </header>
 
 <main>
   <!-- 1. Fill in your day -->
   <section class="step" id="day">
     <div class="prose">
-      <p class="step-num">1</p>
-      <h2>First, fill in your own day</h2>
-      <p>Think about a normal weekday or weekend day. Drag each slider to roughly how many hours you spend on it. Whatever you don't assign goes into "everything else".</p>
+      <p class="meta">Part 1 of 4</p>
+      <h2>Fill in your own day</h2>
+      <p>Think of a normal day. Drag each slider to roughly how long you spend on it. Whatever you don't assign goes into "everything else".</p>
     </div>
     <div class="day-grid">
       <form class="sliders" id="sliders" aria-label="Your hours"></form>
@@ -45,9 +45,9 @@
   <!-- 2. Stacked area -->
   <section class="step" id="area">
     <div class="prose">
-      <p class="step-num">2</p>
-      <h2>The average day hardly moves, except where it does</h2>
-      <p>Each band is the average minutes per day spent on one kind of activity, from 2003 to 2024. Pick a group, hover a year to read the minutes, and hide sleep to see the smaller bands up close.</p>
+      <p class="meta">Part 2 of 4</p>
+      <h2>Twenty years of the average day</h2>
+      <p>Each band is the average time per day spent on one kind of activity, from 2003 to 2024. Socializing in person is the orange band. Pick a group, hover a year to read the times, and hide sleep to see the smaller bands up close.</p>
     </div>
     <div class="area-controls">
       <label>Age <select id="area-age"></select></label>
@@ -58,15 +58,14 @@
       <svg id="area-chart" role="img" aria-label="Stacked area chart of minutes per day by activity, 2003 to 2024"></svg>
       <div class="tooltip" id="area-tip" hidden></div>
     </div>
-    <div class="legend" id="area-legend"></div>
   </section>
 
   <!-- 3. Alone vs others (draft) -->
   <section class="step" id="company">
     <div class="prose">
-      <p class="step-num">3</p>
-      <h2>Draft: time with friends fell for every age group</h2>
-      <p>Minutes per day spent with friends outside of work. Young people lost the most: people aged 15 to 24 went from about two and a half hours a day in 2003 to under one hour in 2024. Switch to "alone" to see the other side of it.</p>
+      <p class="meta">Part 3 of 4 · draft</p>
+      <h2>Time with friends fell at every age</h2>
+      <p>Time per day spent with friends outside of work. People aged 15 to 24 lost the most, going from about two and a half hours a day in 2003 to under one hour in 2024. Switch to "alone" to see the other side of it.</p>
     </div>
     <div class="area-controls">
       <div class="seg" id="company-measure" role="radiogroup" aria-label="Measure">
@@ -80,8 +79,8 @@
   <!-- 4. Closing view (planned) -->
   <section class="step planned" id="closing">
     <div class="prose">
-      <p class="step-num">4</p>
-      <h2>Coming next: your day, then and now</h2>
+      <p class="meta">Part 4 of 4 · not built yet</p>
+      <h2>Your day, then and now</h2>
       <p>The closing view will put the reader's answers from step 1 next to the 2003 and 2024 averages for their group, so the last thing they see is where their own day fits in a twenty-year change.</p>
     </div>
   </section>
@@ -101,6 +100,6 @@
 </footer>
 
 <script src="https://cdn.jsdelivr.net/npm/d3@7.9.0/dist/d3.min.js"></script>
-<script type="module" src="js/main.js"></script>
+<script type="module" src="js/main.js?v=2"></script>
 </body>
 </html>

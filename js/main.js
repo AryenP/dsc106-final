@@ -7,17 +7,17 @@ const LATEST = 2024;
 // Bands in the stacked area chart, bottom to top. `from` lists the
 // activity groups in data/activities.csv that make up each band.
 const BANDS = [
-  { key: "Sleep", from: ["Sleep"], color: "#3d4b6b" },
-  { key: "Personal care", from: ["Personal care"], color: "#8e9bb5" },
-  { key: "Work & school", from: ["Work", "School"], color: "#c2410c" },
-  { key: "Chores & caring", from: ["Housework & chores", "Caring for others"], color: "#e3a857" },
-  { key: "Eating & drinking", from: ["Eating & drinking"], color: "#7c9a52" },
-  { key: "Shopping & errands", from: ["Shopping & errands"], color: "#bccb8f" },
-  { key: "Travel", from: ["Travel"], color: "#a9a39b" },
-  { key: "TV & movies", from: ["TV & movies"], color: "#5b3a80" },
-  { key: "Games & computer", from: ["Games & computer"], color: "#a98bc9" },
-  { key: "Socializing", from: ["Socializing"], color: "#d1366b" },
-  { key: "Other leisure", from: ["Other leisure & sports", "Religious & volunteer", "Other"], color: "#d8cebf" },
+  { key: "Sleep", from: ["Sleep"], color: "#dcd8d1" },
+  { key: "Personal care", from: ["Personal care"], color: "#bdb8b0" },
+  { key: "Work & school", from: ["Work", "School"], color: "#a29d94" },
+  { key: "Chores & caring", from: ["Housework & chores", "Caring for others"], color: "#cbc6be" },
+  { key: "Eating & drinking", from: ["Eating & drinking"], color: "#b2ada5" },
+  { key: "Shopping & errands", from: ["Shopping & errands"], color: "#d6d2cb" },
+  { key: "Travel", from: ["Travel"], color: "#aba69e" },
+  { key: "TV & movies", from: ["TV & movies"], color: "#8d8880" },
+  { key: "Games & computer", from: ["Games & computer"], color: "#c0bbb3" },
+  { key: "Socializing", from: ["Socializing"], color: "#c2410c" },
+  { key: "Other leisure", from: ["Other leisure & sports", "Religious & volunteer", "Other"], color: "#d2cdc6" },
 ];
 
 // Sliders in step 1 (hours). Whatever is left of 24 h is "everything else".
@@ -32,12 +32,12 @@ const SLIDERS = [
 ];
 const REST = "Everything else";
 
+// Durations are written like a diary entry: hours:minutes.
 const fmtMin = (m) => {
   const t = Math.round(m);
-  const h = Math.floor(t / 60), mm = t % 60;
-  if (h === 0) return `${mm} min`;
-  return mm === 0 ? `${h} h` : `${h} h ${mm} min`;
+  return `${Math.floor(t / 60)}:${String(t % 60).padStart(2, "0")}`;
 };
+const fig = (m) => `<span class="fig">${fmtMin(m)}</span>`;
 const fmtHours = (h) => fmtMin(h * 60);
 
 function fillSelect(sel, values, labels = values, selected) {
@@ -97,7 +97,7 @@ restRow.append("output").attr("id", "o-rest");
 
 d3.select("#reveal").on("click", () => {
   day.revealed = true;
-  d3.select("#reveal").text("Showing people like you in 2024");
+  d3.select("#reveal").text("Compared with 2024 averages").classed("done", true);
   drawDay();
 });
 d3.selectAll("#day-age, #day-emp").on("change", drawDay);
@@ -131,47 +131,46 @@ function drawDay() {
 
   svg.selectAll("g.xaxis").data([0]).join("g").attr("class", "axis xaxis")
     .attr("transform", `translate(0,${H - m.b})`)
-    .call(d3.axisBottom(x).ticks(6).tickFormat((d) => `${d} h`));
+    .call(d3.axisBottom(x).ticks(6).tickFormat((d) => `${d}:00`));
 
   svg.selectAll("text.legend-you").data([0]).join("text").attr("class", "annot legend-you")
     .attr("x", m.l).attr("y", 12)
-    .text(day.revealed ? `Dark: you · Orange: average ${age}-year-old ${emp === "Employed" ? "with a job" : "without a job"}, ${LATEST}` : "Your hours");
+    .text(day.revealed ? `Dark bar: you · light bar: the average ${age} year old ${emp === "Employed" ? "with a job" : "without a job"} in ${LATEST}` : "Your day");
 
   const g = svg.selectAll("g.row").data(data, (d) => d.key).join((enter) => {
     const r = enter.append("g").attr("class", "row");
     r.append("text").attr("class", "lbl annot").attr("text-anchor", "end").attr("dy", "0.35em");
-    r.append("rect").attr("class", "avg").attr("fill", "#f0b48a").attr("rx", 2);
+    r.append("rect").attr("class", "avg").attr("rx", 2);
     r.append("rect").attr("class", "you").attr("fill", "var(--you)").attr("rx", 2);
-    r.append("text").attr("class", "val annot").attr("dy", "0.35em");
+    r.append("text").attr("class", "val").attr("dy", "0.35em");
     return r;
   });
   g.attr("transform", (d) => `translate(0,${y(d.key)})`);
   const bh = y.bandwidth();
   g.select(".lbl").attr("x", m.l - 10).attr("y", bh / 2).text((d) => d.key);
-  g.select(".avg").transition().duration(300)
+  g.select(".avg").attr("fill", (d) => (d.key === "Seeing people in person" ? "var(--accent-soft)" : "#dedad3"))
+    .transition().duration(400).ease(d3.easeCubicOut)
     .attr("x", m.l).attr("y", 0).attr("height", bh)
     .attr("width", (d) => (day.revealed ? x(d.avg) - m.l : 0));
   g.select(".you").attr("x", m.l).attr("y", bh * 0.3).attr("height", bh * 0.4)
     .attr("width", (d) => Math.max(0, x(d.you) - m.l));
   g.select(".val")
     .attr("x", (d) => Math.max(x(d.you), day.revealed ? x(d.avg) : 0) + 6).attr("y", bh / 2)
-    .text((d) => (day.revealed ? `avg ${fmtHours(d.avg)}` : ""));
+    .text((d) => (day.revealed ? fmtHours(d.avg) : ""));
 
   const note = d3.select("#day-note");
   if (!day.revealed) { note.text(""); return; }
   const diffs = data.filter((d) => d.key !== REST).map((d) => ({ ...d, diff: d.you - d.avg }));
   const big = d3.greatest(diffs, (d) => Math.abs(d.diff));
   const social = data.find((d) => d.key === "Seeing people in person");
-  note.text(`Your biggest difference is ${big.key.toLowerCase()}: ${fmtHours(Math.abs(big.diff))} ${big.diff > 0 ? "more" : "less"} than average. ` +
-    `The average person like you spends ${fmtHours(social.avg)} a day socializing in person. These averages mix weekdays and weekends.`);
+  note.html(`Your biggest difference is ${big.key.toLowerCase()}, ${fig(Math.abs(big.diff) * 60)} ${big.diff > 0 ? "more" : "less"} than average. ` +
+    `The average person like you spends ${fig(social.avg * 60)} a day with people in person. These averages mix weekdays and weekends.`);
 }
 
 /* ---------------- 2. Stacked area 2003–2024 ---------------- */
 fillSelect(d3.select("#area-age"), ["All", ...AGES], ["Everyone 15+", ...AGES], "All");
 d3.selectAll("#area-age, #area-emp, #area-nosleep").on("change", drawArea);
 
-d3.select("#area-legend").selectAll("span").data(BANDS.slice().reverse()).join("span")
-  .html((d) => `<i style="background:${d.color}"></i>${d.key}`);
 
 let areaHover = null;
 
@@ -192,7 +191,7 @@ function drawArea() {
   const svg = d3.select("#area-chart");
   const W = svg.node().getBoundingClientRect().width || 900;
   const H = Math.min(520, Math.max(340, W * 0.5));
-  const m = { t: 28, r: 16, b: 30, l: 48 };
+  const m = { t: 28, r: W < 640 ? 16 : 136, b: 32, l: 48 };
   svg.attr("viewBox", `0 0 ${W} ${H}`).attr("height", H);
 
   const x = d3.scaleLinear().domain(d3.extent(YEARS)).range([m.l, W - m.r]);
@@ -203,10 +202,10 @@ function drawArea() {
 
   svg.selectAll("g.yaxis").data([0]).join("g").attr("class", "axis yaxis grid")
     .attr("transform", `translate(${m.l},0)`)
-    .call(d3.axisLeft(y).tickValues(ticks).tickSize(-(W - m.l - m.r)).tickFormat((d) => `${d / 60} h`));
+    .call(d3.axisLeft(y).tickValues(ticks).tickSize(-(W - m.l - m.r)).tickFormat((d) => `${d / 60}:00`));
   svg.selectAll("g.xaxis").data([0]).join("g").attr("class", "axis xaxis")
     .attr("transform", `translate(0,${H - m.b})`)
-    .call(d3.axisBottom(x).tickValues([2003, 2006, 2009, 2012, 2015, 2018, 2020, 2024]).tickFormat(d3.format("d")));
+    .call(d3.axisBottom(x).tickValues(W < 640 ? [2003, 2010, 2020, 2024] : [2003, 2006, 2009, 2012, 2015, 2018, 2020, 2024]).tickFormat(d3.format("d")));
 
   const area = d3.area().x((d) => x(d.data.year)).y0((d) => y(d[0])).y1((d) => y(d[1])).curve(d3.curveMonotoneX);
   const layer = svg.selectAll("g.layers").data([0]).join("g").attr("class", "layers");
@@ -219,19 +218,29 @@ function drawArea() {
     .attr("stroke", "#fff").attr("stroke-width", 0.6)
     .transition().duration(400).attr("d", area);
 
+  // label each band at its right edge, if it is tall enough to hold text
+  const last = (s) => s.at(-1);
+  svg.selectAll("text.band-label").data(W < 640 ? [] : series, (d) => d.key).join("text")
+    .attr("class", (d) => `band-label${d.key === "Socializing" ? " hi" : ""}`)
+    .attr("x", W - m.r + 8).attr("dy", "0.35em")
+    .text((d) => d.key)
+    .transition().duration(400)
+    .attr("y", (d) => y((last(d)[0] + last(d)[1]) / 2))
+    .attr("opacity", (d) => (y(last(d)[0]) - y(last(d)[1]) >= 12 || d.key === "Socializing" ? 1 : 0));
+
   // 2020 marker
   const mark = svg.selectAll("g.mark2020").data([0]).join((e) => {
     const g = e.append("g").attr("class", "mark2020");
-    g.append("line").attr("stroke", "var(--ink)").attr("stroke-dasharray", "3 3");
+    g.append("line").attr("stroke", "var(--ink-3)").attr("stroke-dasharray", "2 4");
     g.append("text").attr("class", "annot").attr("text-anchor", "end");
     return g;
   });
   mark.select("line").attr("x1", x(2020)).attr("x2", x(2020)).attr("y1", m.t - 6).attr("y2", H - m.b);
-  mark.select("text").attr("x", x(2020) - 6).attr("y", m.t - 10).text("2020: no diaries 18 Mar to 9 May");
+  mark.select("text").attr("x", x(2020) - 6).attr("y", m.t - 10).text("No diaries 18 Mar to 9 May 2020");
 
   // hover
   const rule = svg.selectAll("line.hover").data([0]).join("line").attr("class", "hover")
-    .attr("stroke", "var(--ink)").attr("y1", m.t).attr("y2", H - m.b).attr("opacity", 0);
+    .attr("stroke", "var(--ink-2)").attr("y1", m.t).attr("y2", H - m.b).attr("opacity", 0);
   const tip = d3.select("#area-tip");
   const hit = svg.selectAll("rect.hit").data([0]).join("rect").attr("class", "hit")
     .attr("x", m.l).attr("y", m.t).attr("width", W - m.l - m.r).attr("height", H - m.t - m.b)
@@ -244,7 +253,7 @@ function drawArea() {
     if (year < YEARS[0] || year > YEARS.at(-1)) return hide();
     const row = table.find((r) => r.year === year);
     const hiKey = event.target.__data__?.key ?? null;
-    layer.selectAll("path").attr("opacity", (d) => (hiKey && d.key !== hiKey ? 0.45 : 1));
+    layer.selectAll("path").attr("opacity", (d) => (hiKey && d.key !== hiKey ? 0.55 : 1));
     rule.attr("x1", x(year)).attr("x2", x(year)).attr("opacity", 0.6);
     const items = bands.slice().reverse();
     tip.attr("hidden", null).html(
@@ -274,7 +283,7 @@ d3.selectAll("#company-measure button").on("click", function () {
   d3.selectAll("#company-measure button").attr("aria-pressed", function () { return String(this.dataset.v === measure); });
   drawCompany();
 });
-const ageColor = d3.scaleOrdinal(AGES, ["#d1366b", "#e07b39", "#c9a227", "#6f9a4a", "#3f7f9a", "#3d4b6b"]);
+const ageColor = (age) => (age === "15-24" ? "var(--accent)" : "#aaa59d");
 
 function drawCompany() {
   const rowsC = company.filter((d) => d.employment === "All" && d.age !== "All");
@@ -282,36 +291,43 @@ function drawCompany() {
   const svg = d3.select("#company-chart");
   const W = svg.node().getBoundingClientRect().width || 900;
   const H = Math.min(440, Math.max(300, W * 0.42));
-  const m = { t: 20, r: 64, b: 30, l: 48 };
+  const m = { t: 24, r: 64, b: 32, l: 48 };
   svg.attr("viewBox", `0 0 ${W} ${H}`).attr("height", H);
   const x = d3.scaleLinear().domain(d3.extent(rowsC, (d) => d.year)).range([m.l, W - m.r]);
   const y = d3.scaleLinear().domain([0, d3.max(rowsC, (d) => d[measure])]).nice().range([H - m.b, m.t]);
 
   svg.selectAll("g.yaxis").data([0]).join("g").attr("class", "axis yaxis grid")
     .attr("transform", `translate(${m.l},0)`)
-    .call(d3.axisLeft(y).ticks(6).tickSize(-(W - m.l - m.r)).tickFormat((d) => `${d} min`));
+    .call(d3.axisLeft(y).tickValues(d3.range(0, y.domain()[1] + 1, measure === "friends" ? 30 : 60)).tickSize(-(W - m.l - m.r)).tickFormat(fmtMin));
   svg.selectAll("g.xaxis").data([0]).join("g").attr("class", "axis xaxis")
     .attr("transform", `translate(0,${H - m.b})`)
-    .call(d3.axisBottom(x).tickValues([2003, 2008, 2013, 2018, 2020, 2024]).tickFormat(d3.format("d")));
+    .call(d3.axisBottom(x).tickValues(W < 640 ? [2003, 2010, 2020, 2024] : [2003, 2008, 2013, 2018, 2020, 2024]).tickFormat(d3.format("d")));
 
   const line = d3.line().x((d) => x(d.year)).y((d) => y(d[measure])).curve(d3.curveMonotoneX);
   const g = svg.selectAll("g.series").data(lines, (d) => d.age).join((e) => {
     const s = e.append("g").attr("class", "series");
-    s.append("path").attr("fill", "none").attr("stroke-width", 2.2);
+    s.append("path").attr("fill", "none");
     s.append("text").attr("class", "annot end").attr("dy", "0.35em");
     return s;
   });
-  g.select("path").attr("stroke", (d) => ageColor(d.age)).transition().duration(400).attr("d", (d) => line(d.values));
-  g.select("text.end").attr("x", W - m.r + 6).attr("fill", (d) => ageColor(d.age))
-    .transition().duration(400).attr("y", (d) => y(d.values.at(-1)[measure]))
+  g.sort((a, b) => (a.age === "15-24") - (b.age === "15-24"));
+  g.select("path").attr("stroke", (d) => ageColor(d.age)).attr("stroke-width", (d) => (d.age === "15-24" ? 2.5 : 1.5)).transition().duration(400).attr("d", (d) => line(d.values));
+  g.select("text.end").attr("x", W - m.r + 8).attr("fill", (d) => (d.age === "15-24" ? "var(--accent)" : "var(--ink-3)"))
     .text((d) => d.age);
+
+  // end labels: nudge apart so they never overlap
+  const ends = lines.map((l) => ({ age: l.age, y: y(l.values.at(-1)[measure]) })).sort((p, q) => p.y - q.y);
+  for (let i = 1; i < ends.length; i++) ends[i].y = Math.max(ends[i].y, ends[i - 1].y + 14);
+  const endY = new Map(ends.map((e) => [e.age, e.y]));
+  g.select("text.end").transition().duration(400).attr("y", (d) => endY.get(d.age));
 
   // annotate the age group with the biggest change
   const change = lines.map((l) => ({ ...l, a: l.values[0][measure], b: l.values.at(-1)[measure] }));
   const big = d3.greatest(change, (d) => Math.abs(d.b - d.a));
   svg.selectAll("text.callout").data([big]).join("text").attr("class", "annot callout")
     .attr("x", x(2003) + 8).attr("y", y(big.a) - 10)
-    .text(`Ages ${big.age}: ${fmtMin(big.a)} a day in 2003, ${fmtMin(big.b)} in 2024`);
+    .text(`Ages ${big.age}: ${fmtMin(big.a)} a day in 2003, ${fmtMin(big.b)} in 2024`)
+    .attr("fill", big.age === "15-24" ? "var(--accent)" : "var(--ink-2)");
 
   g.on("pointerenter", (event, d) => g.attr("opacity", (o) => (o.age === d.age ? 1 : 0.2)))
     .on("pointerleave", () => g.attr("opacity", 1));
